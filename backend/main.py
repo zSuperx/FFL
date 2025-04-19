@@ -1,6 +1,6 @@
 import os
 from ytdl import download_yt_vid
-from mp4dl import download_mp4
+from mp4dl import scale_video
 
 URL = "https://www.youtube.com/watch?v=6yrdS4tIP9U"
 # URL = "https://www.youtube.com/watch?v=uHU4_Wo4_OY"
@@ -17,7 +17,7 @@ def main():
     video_path = os.path.relpath(video_path)
 
     print(f"{video_path = }")
-    download_mp4(video_path, f"{pathname}-scaled.webm")
+    scale_video(video_path, f"{pathname}-scaled.webm")
 
 
 if __name__ == "__main__":
