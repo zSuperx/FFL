@@ -2,7 +2,12 @@
   "name": "Video Downloader",
   "version": "1.0",
   "manifest_version": 3,
-  "permissions": ["contextMenus", "activeTab", "scripting"],
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "clipboardWrite",
+    "scripting"
+  ],
   "background": {
     "service_worker": "./scripts/background.js"
   },
