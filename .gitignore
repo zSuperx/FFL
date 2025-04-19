@@ -1,8 +1,11 @@
-# Nix
-flake.nix
-flake.lock
+# Direnv
 .direnv
 .envrc
 
 # uv
 .venv
+__pycache__
+
+# FFL
+videos/
+
