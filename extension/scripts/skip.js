@@ -7,9 +7,10 @@ const skipTimes = [
 ];
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	alert("Skip received message")
 	if (message.type === "received") {
 		alert("Skip received: "+message.data)
-		skipTimes = message.data
+		// skipTimes = message.data
 	}
 
 	sendResponse({ status: "ok" });
@@ -65,4 +66,4 @@ const observer = new MutationObserver(() => {
 
 observer.observe(document.body, { childList: true, subtree: true });
 
-setup(); // Initial run
+// setup(); // Initial run
