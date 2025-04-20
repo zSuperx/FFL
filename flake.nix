@@ -19,6 +19,8 @@
         pkgs.uv
         pkgs.yt-dlp
         pkgs.ffmpeg_6
+        pkgs.libGL
+        pkgs.python312Packages.opencv4
       ];
 
       shellHook = ''

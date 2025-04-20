@@ -2,9 +2,7 @@ import asyncio
 import json
 from typing import Callable
 
-from fastapi import FastAPI, WebSocket
-
-from backend.process_video import process_video
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, WebSocketException
 
 app = FastAPI()
 
@@ -38,6 +36,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.send_text(f"Unknown event: {event}")
         except json.JSONDecodeError:
             await websocket.send_text("Invalid JSON")
+        except WebSocketDisconnect:
+            print("Connection closed by some client.")
         except Exception as e:
             await websocket.send_text(f"Error: {str(e)}")
 
@@ -48,9 +48,8 @@ async def event_process_video(websocket: WebSocket, data: dict):
     video_type = data["data"].get("type")
 
     print(f"{video_type = }, {url = }")
-    generator = process_video(url, video_type)
-
-    for chunk in generator:
+    for i in range(5):
         await websocket.send_text(f"Processed some more shit, but then again maybe not")
+        await asyncio.sleep(1)
 
     await websocket.send_text(f"Done")
