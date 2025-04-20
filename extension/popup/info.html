@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Info Page</title>
+    <link rel="stylesheet" href="info.css" />
+    <script src="../scripts/manualScan.js" defer></script>
+    <script src="../scripts/skipToggle.js" defer></script>
+	<script src="../scripts/socket.io.min.js" defer></script>
+  </head>
+  <body>
+    <h1>FFL (Fork Flashing Lights)</h1>
+    <p class="description">
+      FFL checks YouTube videos for flashing lights and highlights segments which may harm your viewing experience.
+    </p>
+
+    <button id="scanButton">Scan</button>
+
+    <div class="toggle-container">
+      <label class="toggle-label">
+        <input type="checkbox" id="skipToggle" />
+        <span class="slider"></span>
+        Skip flashing parts
+      </label>
+    </div>
+    
+    <div class="toggle-container">
+      <label class="toggle-label">
+        <input type="checkbox" id="autoScanToggle" />
+        <span class="slider"></span>
+        Auto scan on video load
+      </label>
+    </div>    
+
+    <p id="message" class="message"></p>
+    <p class="description">
+      This project was made for HackDavis 2025.
+    </p>
+    <p class="link">
+      <a href="https://github.com/zSuperx/FFL/tree/main" target="_blank">GitHub Repo</a>
+    </p>
+  </body>
+</html>

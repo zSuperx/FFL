@@ -1,0 +1,29 @@
+{
+  "name": "FFL",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "clipboardWrite",
+    "scripting",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "./scripts/background.js"
+  },
+  "action": {
+    "default_popup": "./popup/info.html",
+    "default_icon": "./icons/blitty.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": [
+        "./scripts/skip.js",
+        "./scripts/autoScan.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
