@@ -1,5 +1,5 @@
 {
-  "name": "Video Downloader",
+  "name": "FFL",
   "version": "1.0",
   "manifest_version": 3,
   "permissions": [
@@ -19,7 +19,10 @@
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/*"],
-      "js": ["./scripts/skip.js"],
+      "js": [
+        "./scripts/skip.js",
+        "./scripts/autoScan.js"
+      ],
       "run_at": "document_idle"
     }
   ]

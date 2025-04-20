@@ -1,6 +1,6 @@
 let skippedSegments = new Set();
 
-// Example skip segments: [ [10, 5], [30, 3], [90, 10] ]
+// Example skip segments: [ [10, 5], [30, 3], [90, 10] ] timestamp, duration
 const skipTimes = [
   [10, 5],
   [30, 3],
