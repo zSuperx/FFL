@@ -12,7 +12,14 @@
     "service_worker": "./scripts/background.js"
   },
   "action": {
-    "default_popup": "info.html",
+    "default_popup": "./popup/info.html",
     "default_icon": "./icons/blitty.png"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["./scripts/skip.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

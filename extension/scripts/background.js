@@ -19,6 +19,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "getUrl") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.url) {
+        sendResponse({ url: tabs[0].url });
+      } else {
+        sendResponse({ url: null });
+      }
+    });
+    return true; // Keeps message channel open for async response
+  }
+});
+
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "copyUrl") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {

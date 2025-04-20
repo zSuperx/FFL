@@ -1,0 +1,51 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 16px;
+  width: 300px;
+  height: 220px;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+p.description {
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: #555;
+}
+
+#scanButton {
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+#scanButton:hover {
+  background-color: #0056b3;
+}
+
+p.link a {
+  font-size: 13px;
+  color: #007BFF;
+  text-decoration: none;
+}
+
+p.link a:hover {
+  text-decoration: underline;
+}
+
+p.message {
+  color: red;
+  font-size: 13px;
+  margin-top: 10px;
+}
