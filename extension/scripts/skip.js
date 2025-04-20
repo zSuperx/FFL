@@ -1,48 +1,59 @@
 let skippedSegments = new Set();
 
-// Example skip segments: [ [10, 5], [30, 3], [90, 10] ] timestamp, duration
 const skipTimes = [
   [10, 5],
   [30, 3],
   [90, 10]
 ];
 
-function setup() {
-  chrome.storage.sync.get(['skipEnabled'], (result) => {
-    if (!result.skipEnabled) return;
+function startSkipLogic() {
+  const video = document.querySelector('video');
+  if (!video) return;
 
-    const interval = setInterval(() => {
-      const video = document.querySelector('video');
+  video.addEventListener('timeupdate', () => {
+    const currentTime = video.currentTime;
 
-      if (video) {
-        video.addEventListener('timeupdate', () => {
-          const currentTime = video.currentTime;
+    for (let i = 0; i < skipTimes.length; i++) {
+      const [startTime, jumpAmount] = skipTimes[i];
 
-          for (let i = 0; i < skipTimes.length; i++) {
-            const [startTime, jumpAmount] = skipTimes[i];
-
-            if (
-              !skippedSegments.has(i) &&
-              currentTime >= startTime &&
-              currentTime < startTime + 0.5
-            ) {
-              video.currentTime = currentTime + jumpAmount;
-              skippedSegments.add(i);
-              break; // avoid skipping multiple at once
-            }
-          }
-        });
-
-        clearInterval(interval);
+      if (
+        !skippedSegments.has(i) &&
+        currentTime >= startTime &&
+        currentTime < startTime + 0.5
+      ) {
+        video.currentTime = currentTime + jumpAmount;
+        skippedSegments.add(i);
+        break;
       }
-    }, 500);
+    }
   });
 }
 
+function setup() {
+  // Always check in a valid content context
+  if (typeof chrome !== "undefined" && chrome.storage) {
+    chrome.storage.sync.get(['skipEnabled'], (result) => {
+      if (!result.skipEnabled) return;
+
+      const interval = setInterval(() => {
+        const video = document.querySelector('video');
+        if (video) {
+          startSkipLogic();
+          clearInterval(interval);
+        }
+      }, 500);
+    });
+  } else {
+    console.warn('Chrome extension context not available.');
+  }
+}
+
+// Watch for YouTube's SPA changes
 const observer = new MutationObserver(() => {
+  skippedSegments = new Set(); // Reset for new page load
   setup();
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
 
-setup();
+setup(); // Initial run
