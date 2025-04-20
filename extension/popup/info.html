@@ -4,6 +4,7 @@
     <title>Info Page</title>
     <link rel="stylesheet" href="info.css" />
     <script src="../scripts/scan.js" defer></script>
+    <script src="../scripts/skipToggle.js" defer></script>
   </head>
   <body>
     <h1>FFL (Fork Flashing Lights)</h1>
@@ -13,8 +14,19 @@
     <p class="description">
       This project was made for HackDavis 2025.
     </p>
+
     <button id="scanButton">Scan</button>
-    <p id="message" class="message"></p> <!-- Message for non-YouTube links -->
+
+    <div class="toggle-container">
+      <label class="toggle-label">
+        <input type="checkbox" id="skipToggle" />
+        <span class="slider"></span>
+        Skip flashing parts
+      </label>
+    </div>
+
+    <p id="message" class="message"></p>
+
     <p class="link">
       <a href="https://github.com/zSuperx/FFL/tree/main" target="_blank">GitHub Repo</a>
     </p>

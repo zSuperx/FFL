@@ -1,22 +1,42 @@
-let skipped = false;
+let skippedSegments = new Set();
+
+// Example skip segments: [ [10, 5], [30, 3], [90, 10] ]
+const skipTimes = [
+  [10, 5],
+  [30, 3],
+  [90, 10]
+];
 
 function setup() {
-  const interval = setInterval(() => {
-    const video = document.querySelector('video');
+  chrome.storage.sync.get(['skipEnabled'], (result) => {
+    if (!result.skipEnabled) return;
 
-    if (video) {
-      video.addEventListener('timeupdate', () => {
-        const currentTime = video.currentTime;
+    const interval = setInterval(() => {
+      const video = document.querySelector('video');
 
-        if (!skipped && currentTime >= 10) {
-          video.currentTime = currentTime + 5; // Jump forward 5 seconds
-          skipped = true;
-        }
-      });
+      if (video) {
+        video.addEventListener('timeupdate', () => {
+          const currentTime = video.currentTime;
 
-      clearInterval(interval);
-    }
-  }, 500);
+          for (let i = 0; i < skipTimes.length; i++) {
+            const [startTime, jumpAmount] = skipTimes[i];
+
+            if (
+              !skippedSegments.has(i) &&
+              currentTime >= startTime &&
+              currentTime < startTime + 0.5
+            ) {
+              video.currentTime = currentTime + jumpAmount;
+              skippedSegments.add(i);
+              break; // avoid skipping multiple at once
+            }
+          }
+        });
+
+        clearInterval(interval);
+      }
+    }, 500);
+  });
 }
 
 const observer = new MutationObserver(() => {
