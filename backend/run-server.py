@@ -1,6 +1,10 @@
-from fastapi import FastAPI, WebSocket
-from typing import Callable
+import asyncio
 import json
+from typing import Callable
+
+from fastapi import FastAPI, WebSocket
+
+from backend.process_video import process_video
 
 app = FastAPI()
 
@@ -29,7 +33,7 @@ async def websocket_endpoint(websocket: WebSocket):
             event = data.get("event")
             if event in event_handlers:
                 # Call the corresponding handler
-                await event_handlers[event](websocket, data)
+                asyncio.create_task(event_handlers[event](websocket, data))
             else:
                 await websocket.send_text(f"Unknown event: {event}")
         except json.JSONDecodeError:
@@ -38,8 +42,15 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_text(f"Error: {str(e)}")
 
 
-# Event handler for the "echo" event
 @on_event("process-video")
-async def handle_echo(websocket: WebSocket, data: dict):
-    print(f"{data = }")
-    await websocket.send_text(f"Shut up loser")
+async def event_process_video(websocket: WebSocket, data: dict):
+    url = data["data"].get("url")
+    video_type = data["data"].get("type")
+
+    print(f"{video_type = }, {url = }")
+    generator = process_video(url, video_type)
+
+    for chunk in generator:
+        await websocket.send_text(f"Processed some more shit, but then again maybe not")
+
+    await websocket.send_text(f"Done")
