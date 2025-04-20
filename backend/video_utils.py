@@ -4,7 +4,7 @@ import subprocess
 from ffmpeg import FFmpeg
 
 
-def download_yt_vid(url: str, output_path: str) -> str:
+def download_yt_vid(url: str, output_path: str) -> str | None:
     """
     Calls `yt-dlp` to download the YouTube video from the given `url`.
 
@@ -16,12 +16,12 @@ def download_yt_vid(url: str, output_path: str) -> str:
     )
     if result.returncode != 0:
         print("Error occurred while running `yt-dlp`")
-        exit(1)
+        return None
     else:
         return result.stdout.strip().decode()
 
 
-def scale_video(url, output_path, area=10000):
+def scale_video(url, output_path, area=10000) -> int:
     """
     Scales a video to the given `area` size, keeping the aspect ratio the same.
 
@@ -34,21 +34,30 @@ def scale_video(url, output_path, area=10000):
     print(vf)
     ffmpeg = FFmpeg().option("i", url).option("vf", vf).option("y").output(output_path)
 
-    ffmpeg.execute()
+    try:
+        ffmpeg.execute()
+        return 0
+    except Exception as e:
+        print(f"Ran into exception {e}")
+        return 1
 
 
 # download_mp4("https://jasonfeng365.github.io/canis/canis-contests.mp4", 'videos/out.mp4')
 # extract_frames("videos/", "out.mp4")
-def extract_frames(video_path: str, fps: int):
+def extract_frames(dir: str, video_path: str, fps: int) -> int:
     """
     Extracts the frames from the video located at `video_path`.
-
-    Frame images will be placed in same directory as `video_path`.
     """
     video_dir = os.path.dirname(video_path)
-    frames_path = os.path.join(video_dir, "frame_%05d.jpg")
+    frames_path = os.path.join(dir, "frame_%05d.jpg")
 
     ffmpeg = FFmpeg().option("i", video_path).option("y").output(frames_path)
     if fps > 0:
         ffmpeg.option("vf", f"fps={fps}")
-    ffmpeg.execute()
+
+    try:
+        ffmpeg.execute()
+        return 0
+    except Exception as e:
+        print(f"Ran into exception {e}")
+        return 1

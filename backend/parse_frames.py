@@ -34,6 +34,7 @@ def compare_frames(dir: str, fps: int, chunk_size=100):
     buffer = []
     countdown = patience
     while os.path.exists(framePath):
+        print(f"Processing frame {frameIdx}")
         # print(f"Working on ({frameIdx-1}, {frameIdx})")
         frame = cv2.imread(framePath)
         # frame = frame.astype(np.int16)

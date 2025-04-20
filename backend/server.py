@@ -1,13 +1,21 @@
 import asyncio
 import json
 from typing import Callable
+import re
+import os
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, WebSocketException
+
+import backend.video_utils as video_utils
+import backend.parse_frames as parse_frames
 
 app = FastAPI()
 
 # A dictionary to hold event handlers
 event_handlers = {}
+
+# Youtube URL regex
+regex = re.compile(r"https://youtube\.com/watch.+")
 
 
 # Function to register event handlers
@@ -47,9 +55,53 @@ async def event_process_video(websocket: WebSocket, data: dict):
     url = data["data"].get("url")
     video_type = data["data"].get("type")
 
+    print(f"Received request!")
     print(f"{video_type = }, {url = }")
-    for i in range(5):
-        await websocket.send_text(f"Processed some more shit, but then again maybe not")
-        await asyncio.sleep(1)
 
-    await websocket.send_text(f"Done")
+    h = hash(url)
+
+    directory = os.path.join("videos", str(h))
+    os.makedirs(directory, exist_ok=True)
+    video_path = os.path.join(directory, "video")
+
+    try:
+
+        downloaded_video = video_utils.download_yt_vid(
+            url,
+            video_path,
+        )
+
+        if downloaded_video is None:
+            await websocket.send_text("An error occurred while downloading the video")
+            return
+
+        print(f"Finished downloading video")
+
+        if (
+            video_utils.scale_video(
+                downloaded_video, os.path.relpath(downloaded_video), 1000
+            )
+            != 0
+        ):
+            await websocket.send_text("An error occurred while scaling the video")
+            return
+
+        frames_dir = os.path.dirname(downloaded_video)
+
+        if video_utils.extract_frames(frames_dir, downloaded_video, 4) != 0:
+            await websocket.send_text(
+                "An error occurred while extracting frames from the video"
+            )
+            return
+
+        print(f"Finished extracting frames")
+
+        generator = parse_frames.compare_frames(frames_dir, 4)
+
+        for chunk in generator:
+            print(chunk)
+            await websocket.send_text(f"{chunk = }")
+
+        await websocket.send_text(f"Done")
+    finally:
+        os.rmdir(directory)
