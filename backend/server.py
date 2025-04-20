@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import Callable
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, WebSocketException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 app = FastAPI()
 
@@ -23,23 +23,24 @@ def on_event(event: str):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    while True:
-        # Receive message (expects JSON with "event" and "data")
-        msg = await websocket.receive_text()
-        try:
-            data = json.loads(msg)
-            event = data.get("event")
-            if event in event_handlers:
-                # Call the corresponding handler
-                asyncio.create_task(event_handlers[event](websocket, data))
-            else:
-                await websocket.send_text(f"Unknown event: {event}")
-        except json.JSONDecodeError:
-            await websocket.send_text("Invalid JSON")
-        except WebSocketDisconnect:
-            print("Connection closed by some client.")
-        except Exception as e:
-            await websocket.send_text(f"Error: {str(e)}")
+    try:
+        while True:
+            # Receive message (expects JSON with "event" and "data")
+            msg = await websocket.receive_text()
+            try:
+                data = json.loads(msg)
+                event = data.get("event")
+                if event in event_handlers:
+                    # Call the corresponding handler in a new thread
+                    asyncio.create_task(event_handlers[event](websocket, data))
+                else:
+                    await websocket.send_text(f"Unknown event: {event}")
+            except json.JSONDecodeError:
+                await websocket.send_text("Invalid JSON")
+            except Exception as e:
+                await websocket.send_text(f"Error: {str(e)}")
+    except WebSocketDisconnect:
+        print("Connection closed by some client.")
 
 
 @on_event("process-video")
