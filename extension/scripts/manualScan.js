@@ -1,3 +1,15 @@
+// import { io } from "/socket.io.esm.min.js";
+
+
+const endpoint = "https://immortal-hot-cat.ngrok-free.app/"
+
+function openSocket() {
+	console.log("In openSocket")
+	var socket = io.connect(endpoint+'process');
+	console.log(socket)
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const scanButton = document.getElementById("scanButton");
   const message = document.getElementById("message");
@@ -17,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
     scanButton.addEventListener("click", () => {
       if (currentUrl) {
         navigator.clipboard.writeText(currentUrl)
+
+		openSocket()
       } else {
         alert("Unable to get tab URL.");
       }
