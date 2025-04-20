@@ -1,10 +1,19 @@
 let skippedSegments = new Set();
 
 const skipTimes = [
-  [10, 5],
-  [30, 3],
-  [90, 10]
+	[10, 5],
+	[30, 3],
+	[90, 10]
 ];
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (message.type === "received") {
+		alert("Skip received: "+message.data)
+		skipTimes = message.data
+	}
+
+	sendResponse({ status: "ok" });
+});
 
 function startSkipLogic() {
   const video = document.querySelector('video');
