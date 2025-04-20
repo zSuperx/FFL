@@ -1,24 +1,31 @@
+from process_video import process_video
 from flask import Flask, request, jsonify
+from flask_socketio import SocketIO, emit
 
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-@app.route("/process", methods=['POST'])
-def home():
-	print("Processing...")
-	data = request.get_json()
 
-	url = data["url"]
-	dataType = data["type"]
+@socketio.on("start-processing")
+def process(data):
+    print(f"Received request: {data}")
 
-	print(url)
-	print(dataType)
+    url = data["url"]
+    video_type = data["type"]
 
-	res = {
-		"status": "OK",
-		"knuckles": "cracked",
-		"intellij": "open",
-		"chicken": "bbq"
-	}
+    print(url)
+    print(video_type)
 
-	return res
+    for _ in range(10):
+        emit(
+            "time-slice",
+            {
+                "start": 42,
+                "duration": 5,
+            },
+        )
+
+    res = process_video(url, video_type)
+
+    return res
