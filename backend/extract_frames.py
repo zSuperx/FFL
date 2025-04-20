@@ -3,6 +3,8 @@ import cv2
 import os
 import numpy as np
 
+import math
+
 # download_mp4("https://jasonfeng365.github.io/canis/canis-contests.mp4", 'videos/out.mp4')
 # extract_frames("videos/", "out.mp4")
 def extract_frames(dir: str, video_file: str, fps: int):
@@ -74,7 +76,7 @@ def compare_frames(dir: str, fps: int, chunk_size=100):
 		if start:
 			countdown -= 1
 			if countdown == 0:
-				buffer.append((start/fps, (end-start)/fps))
+				buffer.append((math.floor(start/fps), math.ceil((end-start)/fps)))
 				# out.append((start/fps, (end-start)/fps))
 				# out.append((start, end))
 				# Reset the countdown!
@@ -88,7 +90,7 @@ def compare_frames(dir: str, fps: int, chunk_size=100):
 
 	# If there was one flashing light that kept waiting bc of patience
 	if start:
-		yield (start/fps, (end-start)/fps)
+		yield [(math.floor(start/fps), math.ceil((end-start)/fps))]
 		
 
 # (74, 132, 3)
