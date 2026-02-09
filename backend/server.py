@@ -1,4 +1,5 @@
 import asyncio
+from codecs import ignore_errors
 import json
 from typing import Callable
 import re
@@ -53,7 +54,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @on_event("process-video")
 async def event_process_video(websocket: WebSocket, data: dict):
-    url = data["data"].get("url")
+    url = data["data"].get("url").strip()
     video_type = data["data"].get("type")
 
     print(f"Received request!")
@@ -65,44 +66,45 @@ async def event_process_video(websocket: WebSocket, data: dict):
     os.makedirs(directory, exist_ok=True)
     video_path = os.path.join(directory, "video")
 
-    try:
+    downloaded_video = video_utils.download_yt_vid(
+        url,
+        directory,
+    )
 
-        downloaded_video = video_utils.download_yt_vid(
-            url,
-            video_path,
+    if downloaded_video is None:
+        await websocket.send_text("An error occurred while downloading the video")
+        return
+
+    print(f"Finished downloading video")
+
+    if (
+        video_utils.scale_video(
+            downloaded_video, os.path.relpath(downloaded_video), 10000
         )
+        != 0
+    ):
+        await websocket.send_text("An error occurred while scaling the video")
+        return
 
-        if downloaded_video is None:
-            await websocket.send_text("An error occurred while downloading the video")
-            return
+    frames_dir = os.path.dirname(directory)
 
-        print(f"Finished downloading video")
+    if video_utils.extract_frames(frames_dir, downloaded_video, 4) != 0:
+        await websocket.send_text(
+            "An error occurred while extracting frames from the video"
+        )
+        return
 
-        if (
-            video_utils.scale_video(
-                downloaded_video, os.path.relpath(downloaded_video), 1000
-            )
-            != 0
-        ):
-            await websocket.send_text("An error occurred while scaling the video")
-            return
+    print(f"Finished extracting frames")
 
-        frames_dir = os.path.dirname(downloaded_video)
+    generator = parse_frames.compare_frames(frames_dir, 4)
 
-        if video_utils.extract_frames(frames_dir, downloaded_video, 4) != 0:
-            await websocket.send_text(
-                "An error occurred while extracting frames from the video"
-            )
-            return
+    for chunk in generator:
+        print(chunk)
+        await websocket.send_text(f"CHUNK: {chunk = }")
 
-        print(f"Finished extracting frames")
+    print("Finished!")
+    await websocket.send_text(f"Done")
 
-        generator = parse_frames.compare_frames(frames_dir, 4)
+    import shutil
 
-        for chunk in generator:
-            print(chunk)
-            await websocket.send_text(f"{chunk = }")
-
-        await websocket.send_text(f"Done")
-    finally:
-        os.rmdir(directory)
+    # shutil.rmtree(directory, ignore_errors=True)

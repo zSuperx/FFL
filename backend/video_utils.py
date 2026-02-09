@@ -8,7 +8,8 @@ def download_yt_vid(url: str, output_path: str) -> str | None:
     """
     Calls `yt-dlp` to download the YouTube video from the given `url`.
 
-    The file will be outputted to `output_path`, if it exists and error if it does not.
+    The file will be named `output_path`. The path of the video (including the ext)
+    is returned on success, otherwise `None`.
     """
     result = subprocess.run(
         ["yt-dlp", "--print", "after_move:filepath", "-o", output_path, url],
@@ -47,6 +48,8 @@ def scale_video(url, output_path, area=10000) -> int:
 def extract_frames(dir: str, video_path: str, fps: int) -> int:
     """
     Extracts the frames from the video located at `video_path`.
+
+    Frames are placed in `dir` directory.
     """
     video_dir = os.path.dirname(video_path)
     frames_path = os.path.join(dir, "frame_%05d.jpg")
